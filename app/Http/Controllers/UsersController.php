@@ -9,6 +9,11 @@ use App\Handlers\ImageUploadHandler;
 
 class UsersController extends Controller
 {
+    public function __construct() {
+        // 指定中间件
+        $this->middleware('auth', ['except' => ['show']]);
+    }
+
     /**
      * [show 显示页面]
      * @param  User   $user [description]
@@ -25,6 +30,8 @@ class UsersController extends Controller
      * @return [type]       [description]
      */
     public function edit(User $user) {
+        //Controller 控制器基类包含了 Laravel 的 AuthorizesRequests trait。此 trait 提供了 authorize 方法
+        $this->authorize('update', $user);// 验证授权
         return view('users.edit', compact('user'));
     }
 
@@ -35,10 +42,12 @@ class UsersController extends Controller
      * @return [type]           [description]
      */
     public function update(UserRequest $request, ImageUploadHandler $uploader, User $user) {
+        // 验证授权
+        $this->authorize('update', $user);
         $data = $request->all();
 
         if ( $request->avatar) {
-                // 362 指定最大图片宽度
+                // 362 指定最大图片宽度(裁切)
                 $result = $uploader->save($request->avatar, 'avatars', $user->id, 362);
                 if ($result) {
                    $data['avatar'] = $result['path'];
