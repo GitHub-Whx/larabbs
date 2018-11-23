@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Handlers\ImageUploadHandler;
 
 class UsersController extends Controller
 {
@@ -33,8 +34,19 @@ class UsersController extends Controller
      * @param  User    $user    [description]
      * @return [type]           [description]
      */
-    public function update(UserRequest $request, User $user) {
-        $user->update($request->all());
+    public function update(UserRequest $request, ImageUploadHandler $uploader, User $user) {
+        $data = $request->all();
+
+        if ( $request->avatar) {
+                // 362 指定最大图片宽度
+                $result = $uploader->save($request->avatar, 'avatars', $user->id, 362);
+                if ($result) {
+                   $data['avatar'] = $result['path'];
+                }
+
+        }
+        $user->update($data);
+
         return redirect()->route('users.show', $user->id)->with('success', '资料更新成功');
     }
 }
