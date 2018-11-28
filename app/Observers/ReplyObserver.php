@@ -20,8 +20,7 @@ class ReplyObserver
     }
 
     // 评论内容净化处理() XSS 过滤)
-    public function creating(Reply $reply)
-    {
+    public function creating(Reply $reply) {
         $reply->content = clean($reply->content, 'user_topic_body');
     }
 }
